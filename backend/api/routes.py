@@ -12,7 +12,7 @@ async def psm_endpoint(request: PSMRequest):
     data = request.data
     treatment_col = request.treatment_col,
     outcome_col = request.outcome_col,
-    confounders = request.confounders,
+    counfounders = request.counfounders,
     n_neighbors = request.n_neighbors,
     random_state = request.random_state,
     scale_features = request.scale_features,
