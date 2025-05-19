@@ -1,7 +1,7 @@
-from fastapi import FastAPI, HTTPException, APIRouter
-from .schemas import PSMRequest, PSMResponse
+from fastapi import APIRouter
+from .schemas import PSMRequest, PSMResponse, DMLRequest, DMLResponse
 from ..core.psm import psm
-# from core.dml import dml
+from ..core.dml import dml
 router = APIRouter()
 
 @router.post("/psm", response_model = PSMResponse)
