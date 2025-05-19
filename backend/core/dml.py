@@ -1,0 +1,49 @@
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import KFold
+from sklearn.linear_model import LassoCV, LogisticRegression
+from sklearn.ensemble import RandomForestRegressor
+from ..api.schemas import DMLResponse
+
+def dml(
+    data: list,
+    treatment_col: str,
+    outcome_col: str,
+    confounders: list,
+    n_splits: int = 2,
+    random_state: int = 42,
+    scale_features: bool = True
+) -> DMLResponse:
+    df = pd.DataFrame(data)
+    X = pd.get_dummies(df[confounders], drop_first=True)
+    treatment = df[treatment_col].values
+    outcomes = df[outcome_col].values
+    kf = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
+    treatment_difference = np.zeros_like(treatment, dtype=float)
+    outcome_difference = np.zeros_like(outcomes, dtype=float)
+
+    for train_idx, test_idx in kf.split(X):
+        # Model for treatment
+        treatment_model = LogisticRegression(max_iter=1000)
+        treatment_model.fit(X.iloc[train_idx], treatment[train_idx])
+        treatment_model_prediction = treatment_model.predict_proba(X.iloc[test_idx])[:, 1]
+
+        # Model for outcome
+        outcome_model = RandomForestRegressor(random_state=random_state)
+        outcome_model.fit(X.iloc[train_idx], outcomes[train_idx])
+        outcome_model_prediction = outcome_model.predict(X.iloc[test_idx])
+
+        # Residuals
+        treatment_difference[test_idx] = treatment[test_idx] - treatment_model_prediction
+        outcome_difference[test_idx] = outcomes[test_idx] - outcome_model_prediction
+
+    final_model = LassoCV(cv=3, random_state=random_state)
+    final_model.fit(treatment_difference.reshape(-1, 1), outcome_difference)
+    att = final_model.coef_[0]
+    ate = outcomes[treatment == 1].mean() - outcomes[treatment == 0].mean()
+
+    return DMLResponse(
+        att=att,
+        ate=ate,
+        message="DML analysis complete."
+    )
