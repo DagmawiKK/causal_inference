@@ -1,13 +1,15 @@
 import streamlit as st
 import requests
 import pandas as pd
+import matplotlib.pyplot as plt
+import json
 import os
 
 
 st.set_page_config(page_title= "Causal Inference Analysis Tool", layout= "centered")
 st.title("Causal Inference Analysis Tool")
 
-FASTAPI_URL = os.getenv("FASTAPI_URL", "http://localhost:8000")
+FASTAPI_URL = "http://localhost:8000/api"
 
 # File upload ui
 st.header("Upload your CSV file")
@@ -34,7 +36,9 @@ psm_tab, dml_tab = st.tabs(["PSM", "DML"])
 
 with psm_tab:
   st.header("Propensity Score Matching (PSM)")
-  if df is not None and len(columns) > 2:
+  if st.session_state.df_data is not None and len(st.session_state.columns) > 2:
+    columns = st.session_state.columns
+
     col1, col2 = st.columns(2)
     with col1:
       treatment_col = st.selectbox("Treatment column", columns)
@@ -51,14 +55,92 @@ with psm_tab:
     with col4:
       random_state = st.number_input("random_state", value = 42, step = 1, key = "random_state_new")
 
+    st.markdown("### Advanced Options (optional)")
+    scale_features = st.checkbox("Scale features for matching", value=True)
+    show_prop_hist = st.checkbox("Show propensity score distribution plot", value=True)
+    show_matched_pair_hist = st.checkbox("Show outcome distribution of matched pairs", value=False)
+    use_caliper = st.checkbox("Use caliper for matching", value=False)
+    caliper = st.number_input("Caliper (max distance allowed)", min_value=0.0, value=0.1, step=0.01, disabled=not use_caliper)
+
     if st.button("Analyze Data"):
       if not treatment_col or not outcome_col or not confounders:
         st.error("Please input treatement, outcome and confounder columns")
-      # else:
-      #   try:
-      #     request_file = uploaded_file.getvalue()
+      else:
+        payload = {
+          "data": st.session_state.df_data,
+          "treatment_col": treatment_col,
+          "outcome_col": outcome_col,
+          "confounders": confounders,
+          "n_neighbors": n_neighbors,
+          "random_state": random_state,
+          "scale_features": scale_features,
+          "use_caliper": use_caliper,
+          "caliper": caliper if use_caliper else 0.0,
+          "show_prop_hist": show_prop_hist,
+          "show_matched_pair_hist": show_matched_pair_hist 
+        }
+
+        try:
+          with st.spinner("Loading..."):
+            response = requests.post(f"{FASTAPI_URL}/psm", json=payload, timeout=120)
+          results = response.json()
+          if results.get("message"):
+            if "Error" in results["message"] or "No " in results["message"]:
+                st.error(results["message"])
+            elif "complete" in results["message"]:
+                  st.success(results["message"])
+            else:
+                st.info(results["message"])
 
 
+          if results.get("att") is not None:
+              st.write(f"**ATT (Matched units):** {results['att']:.4f}")
+          if results.get("ate_raw") is not None:
+              st.write(f"**ATE (Raw difference):** {results['ate_raw']:.4f}")
+          if results.get("num_matched_pairs") is not None:
+              st.write(f"**Number of matched units/pairs:** {results['num_matched_pairs']}")
+          
+          # Display DataFrame with PSM info
+          if results.get("full_data_with_psm_info"):
+            with st.expander("Show full data with propensity scores and matching info"):
+              df_psm_info = pd.DataFrame(results["full_data_with_psm_info"])
+              st.dataframe(df_psm_info)
+          
+          # Display matched pairs table
+          if results.get("matched_pairs_table"):
+            with st.expander("Show all matched pairs (treated to control original indices)"):
+              df_matched_pairs = pd.DataFrame(results["matched_pairs_table"])
+              st.dataframe(df_matched_pairs)
+
+
+          # Display plots
+          if results.get("propensity_score_plot_data") and show_prop_hist:
+            plot_data = results["propensity_score_plot_data"]
+            fig, ax = plt.subplots(figsize=(7, 4))
+            if plot_data.get("treated_values"):
+                ax.hist(plot_data["treated_values"], bins=20, alpha=0.6, label=plot_data["legend_labels"][0] if plot_data.get("legend_labels") else "Treated", color="tab:blue")
+            if plot_data.get("control_values"):
+                ax.hist(plot_data["control_values"], bins=20, alpha=0.6, label=plot_data["legend_labels"][1] if plot_data.get("legend_labels") else "Control", color="tab:orange")
+            ax.set_xlabel(plot_data.get("xlabel", "Propensity Score"))
+            ax.set_ylabel(plot_data.get("ylabel", "Count"))
+            ax.set_title(plot_data.get("title", "Propensity Score Distribution"))
+            ax.legend()
+            st.pyplot(fig)
+          
+          if results.get("matched_outcome_plot_data") and show_matched_pair_hist:
+            plot_data = results["matched_outcome_plot_data"]
+            fig2, ax2 = plt.subplots(figsize=(7, 4))
+            if plot_data.get("treated_values"):
+                ax2.hist(plot_data["treated_values"], bins=10, alpha=0.6, label=plot_data["legend_labels"][0] if plot_data.get("legend_labels") else "Matched Treated", color="tab:purple")
+            if plot_data.get("control_values"):
+                ax2.hist(plot_data["control_values"], bins=10, alpha=0.6, label=plot_data["legend_labels"][1] if plot_data.get("legend_labels") else "Matched Control", color="tab:green")
+            ax2.set_xlabel(plot_data.get("xlabel", "Outcome"))
+            ax2.set_ylabel(plot_data.get("ylabel", "Count"))
+            ax2.set_title(plot_data.get("title", "Outcome Distribution of Matched Units"))
+            ax2.legend()
+            st.pyplot(fig2)
+        except Exception as e:
+           st.error(f"An error occurred while communicating with the backend: {e}")
 
 with dml_tab:
   st.header("Double Machine Learning (DML)")
