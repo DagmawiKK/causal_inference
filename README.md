@@ -8,11 +8,11 @@ This project provides a web-based tool for performing **Propensity Score Matchin
 
 ### DML Tab
 
-![DML Tab Screenshot](./docs/dml_tab.png)
+![DML Tab Screenshot](./docs/dml.png)
 
 ### PSM Tab
 
-![PSM Tab Screenshot](./docs/psm_tab.png)
+![PSM Tab Screenshot](./docs/psm.png)
 
 *Above: The Streamlit frontend for uploading data and running PSM or DML analysis.*
 
