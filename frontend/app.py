@@ -162,6 +162,31 @@ with dml_tab:
 
         scale_features = st.checkbox("Scale features for matching", value=True, key="scale_features_dml")
 
-        
+        if st.button("Analyze Data", key="analyze_dml"):
+            if not treatment_col or not outcome_col or not confounders:
+                st.error("Please input treatement, outcome and confounder columns")
+            else:
+                payload = {
+                    "data": st.session_state.df_data,
+                    "treatment_col": treatment_col,
+                    "outcome_col": outcome_col,
+                    "confounders": confounders,
+                    "n_splits": n_splits,
+                    "random_state": random_state,
+                    "scale_features": scale_features
+                }
+
+                try:
+                    with st.spinner("Loading..."):
+                        response = requests.post(f"{FASTAPI_URL}/dml", json=payload, timeout=120)
+                    results = response.json()
+
+                    if results.get("att") is not None:
+                        st.write(f"**ATT (Matched units):** {results['att']:.4f}")
+                    if results.get("ate") is not None:
+                        st.write(f"**ATE (Raw difference):** {results['ate']:.4f}")
+
+                except Exception as e:
+                    st.error(f"An error occurred while communicating with the backend: {e}")
     else:
         st.info("Please upload your data")
