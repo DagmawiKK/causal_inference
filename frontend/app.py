@@ -2,12 +2,15 @@ import streamlit as st
 import requests
 import pandas as pd
 import os
+from causalml.match import PropensityScoreMatching
+
 
 st.set_page_config(page_title= "Causal Inference Analysis Tool", layout= "centered")
 st.title("Causal Inference Analysis Tool")
 
 FASTAPI_URL = os.getenv("FASTAPI_URL", "http://localhost:8000")
 
+# File upload ui
 st.header("Upload your CSV file")
 uploaded_file = st.file_uploader("Choose a CSV file", type=["csv"])
 
@@ -23,6 +26,30 @@ if uploaded_file is not None:
 
 else:
   st.info("Awaiting CSV to upload")
-  
 
+# Tab choice ui
+psm_tab, dml_tab = st.tabs(["PSM", "DML"])
+
+with psm_tab:
+  st.header("Propensity Score Matching (PSM)")
+  if df is not None and len(columns) > 2:
+    col1, col2 = st.columns(2)
+    with col1:
+      treatment_col = st.selectbox("Treatment column", columns)
+    with col2:
+      outcome_col = st.selectbox("Outcome column (Y)", [col for col in columns if col != treatment_col])
+    
+    default_covariates = [col for col in columns if col != treatment_col and col != outcome_col]
+
+    covariates = st.multiselect("Covariates (X)", default_covariates)
+
+    col3, col4 = st.columns(2)
+    with col3:
+      n_neighbors = st.number_input("n_neighbors", min_value = 1, value = 1, step = 1, key = "n_neighbors_new")
+    with col4:
+      random_state = st.number_input("random_state", value = 42, step = 1, key = "random_state_new")
+
+with dml_tab:
+  st.header("Double Machine Learning (DML)")
+  st.info("To be implemented")
 
