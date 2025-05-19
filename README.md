@@ -4,6 +4,20 @@ This project provides a web-based tool for performing **Propensity Score Matchin
 
 ---
 
+## Demo
+
+### DML Tab
+
+![DML Tab Screenshot](./docs/dml_tab.png)
+
+### PSM Tab
+
+![PSM Tab Screenshot](./docs/psm_tab.png)
+
+*Above: The Streamlit frontend for uploading data and running PSM or DML analysis.*
+
+---
+
 ## Features
 
 - **Upload CSV data** and select columns for analysis.
