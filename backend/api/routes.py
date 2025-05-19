@@ -21,3 +21,16 @@ async def psm_endpoint(request: PSMRequest):
   )
 
   return result
+
+@router.post("/dml", response_model=DMLResponse)
+async def dml_endpoint(request: DMLRequest):
+    result = dml(
+        data=request.data,
+        treatment_col=request.treatment_col,
+        outcome_col=request.outcome_col,
+        confounders=request.confounders,
+        n_splits=request.n_splits,
+        random_state=request.random_state
+    )
+
+    return result
