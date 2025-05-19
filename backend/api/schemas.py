@@ -6,7 +6,7 @@ class PSMRequest(BaseModel):
     data: List[Dict[str, Any]]
     treatment_col: str
     outcome_col: str
-    confounders: List[str]  # <-- fix typo here
+    confounders: List[str]
     n_neighbors: int = Field(default=1, ge=1)
     random_state: int = 42
     scale_features: bool = True
