@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from backend.api import routes
+from api import routes
 
 app = FastAPI(title = "Causal Inference Analysis Tool")
 app.include_router(routes.router, prefix="/api", tags=["routes"])

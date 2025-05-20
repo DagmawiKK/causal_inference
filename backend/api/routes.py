@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from backend.api.schemas import PSMRequest, PSMResponse, DMLRequest, DMLResponse
-from backend.core.psm import psm
-from backend.core.dml import dml
+from api.schemas import PSMRequest, PSMResponse, DMLRequest, DMLResponse
+from core.psm import psm
+from core.dml import dml
 router = APIRouter()
 
 @router.post("/psm", response_model = PSMResponse)

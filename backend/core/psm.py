@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
-from backend.api.schemas import PSMResponse, PlotData, MatchedPairInfo
+from api.schemas import PSMResponse, PlotData, MatchedPairInfo
 
 def psm(
     data: list,

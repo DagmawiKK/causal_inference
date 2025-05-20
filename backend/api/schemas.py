@@ -1,4 +1,3 @@
-# backend/schemas.py
 from typing import List, Dict, Any, Optional, Union
 from pydantic import BaseModel, Field
 
