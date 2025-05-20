@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.model_selection import KFold
 from sklearn.linear_model import LassoCV, LogisticRegression
 from sklearn.ensemble import RandomForestRegressor
-from ..api.schemas import DMLResponse
+from ..api.schemas import DMLResponse, PlotData
 from sklearn.preprocessing import StandardScaler
 
 def dml(
@@ -46,8 +46,18 @@ def dml(
     att = final_model.coef_[0]
     ate = outcomes[treatment == 1].mean() - outcomes[treatment == 0].mean()
 
+    outcome_plot = PlotData(
+        treated_values=outcomes[treatment == 1].tolist(),
+        control_values=outcomes[treatment == 0].tolist(),
+        title="Outcome Distribution by Treatment Group",
+        xlabel="Outcome",
+        ylabel="Count",
+        legend_labels=["Treated", "Control"]
+    )
+
     return DMLResponse(
         att=att,
         ate=ate,
-        message="DML analysis complete."
+        message="DML analysis complete.",
+        outcome_plot=outcome_plot,
     )
