@@ -18,6 +18,12 @@ This project provides a web-based tool for performing **Propensity Score Matchin
 
 ---
 
+## Try it Online
+
+👉 **Check out the live app:** [https://analyze-cause.onrender.com/](https://analyze-cause.onrender.com/)
+
+---
+
 ## Features
 
 - **Upload CSV data** and select columns for analysis.
