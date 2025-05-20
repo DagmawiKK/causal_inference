@@ -85,9 +85,7 @@ with psm_tab:
                     if results.get("message"):
                         if "Error" in results["message"] or "No " in results["message"]:
                             st.error(results["message"])
-                        elif "complete" in results["message"]:
-                            st.success(results["message"])
-                        else:
+                        elif not "complete" in results["message"]:
                             st.info(results["message"])
 
                     if results.get("att") is not None:
@@ -96,6 +94,23 @@ with psm_tab:
                         st.write(f"**ATE (Raw difference):** {results['ate_raw']:.4f}")
                     if results.get("num_matched_pairs") is not None:
                         st.write(f"**Number of matched units/pairs:** {results['num_matched_pairs']}")
+                    
+                    # Conclusions
+                    col5, col6 = st.columns(2)
+                    with col5:
+                        if results['ate_raw'] > 0:
+                            st.success(f"ATE conclusion: On Average, on the entire population, the treatment increases the outcome by {results['ate_raw']:.4f}")
+                        elif results['ate_raw'] < 0:
+                            st.error(f" ATE conclusion: On Average, on the entire population, the treatment decreases the outcome by {results['ate_raw']:.4f}")
+                        else:
+                            st.warning("ATE conclusion: On Average, on the entire population, the treatment has no effect on the outcome")
+                    with col6:
+                        if results['att'] > 0:
+                            st.success(f"ATT conclusion: On Average, on the treated, the treatment increases the outcome by {results['att']:.4f}")
+                        elif results['att'] < 0:
+                            st.error(f"ATT conclusion: On Average, on the treated, the treatment decreases the outcome by {results['att']:.4f}")
+                        else:
+                            st.warning("ATT conclusion: On Average, on the treated, the treatment has no effect on the outcome")
 
                     # Display DataFrame with PSM info
                     if results.get("full_data_with_psm_info"):
@@ -187,6 +202,25 @@ with dml_tab:
                         st.write(f"**ATT (Matched units):** {results['att']:.4f}")
                     if results.get("ate") is not None:
                         st.write(f"**ATE (Raw difference):** {results['ate']:.4f}")
+                    col5, col6 = st.columns(2)
+
+                    # Conclusions
+                    with col5:
+                        if results['ate'] > 0:
+                            st.success(f"ATE conclusion: On Average, on the entire population, the treatment increases the outcome by {results['ate']:.4f}")
+                        elif results['ate'] < 0:
+                            st.error(f" ATE conclusion: On Average, on the entire population, the treatment decreases the outcome by {results['ate']:.4f}")
+                        else:
+                            st.warning("ATE conclusion: On Average, on the entire population, the treatment has no effect on the outcome")
+                    with col6:
+                        if results['att'] > 0:
+                            st.success(f"ATT conclusion: On Average, on the treated, the treatment increases the outcome by {results['att']:.4f}")
+                        elif results['att'] < 0:
+                            st.error(f"ATT conclusion: On Average, on the treated, the treatment decreases the outcome by {results['att']:.4f}")
+                        else:
+                            st.warning("ATT conclusion: On Average, on the treated, the treatment has no effect on the outcome")
+                    
+                    # Output plot
                     if results.get("outcome_plot"):
                         plot_data = results["outcome_plot"]
                         fig, ax = plt.subplots(figsize=(7, 4))
