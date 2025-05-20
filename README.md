@@ -38,7 +38,17 @@ cd causal_inference
 
 ### 2. Install dependencies
 
+#### Backend
+
 ```bash
+cd backend
+pip install -r requirements.txt
+```
+
+#### Frontend
+
+```bash
+cd ../frontend
 pip install -r requirements.txt
 ```
 
@@ -81,11 +91,16 @@ backend/
     routes.py   # FastAPI endpoints
     schemas.py  # Pydantic schemas
   main.py       # FastAPI app entrypoint
+  requirements.txt
 
 frontend/
   app.py        # Streamlit frontend
+  requirements.txt
 
-requirements.txt
+docs/
+  dml.png       # DML tab screenshot
+  psm.png       # PSM tab screenshot
+
 README.md
 ```
 
@@ -93,7 +108,8 @@ README.md
 
 ## Requirements
 
-See [`requirements.txt`](requirements.txt) for all dependencies.
+- Python 3.8+
+- See `backend/requirements.txt` and `frontend/requirements.txt` for all dependencies.
 
 ---
 
