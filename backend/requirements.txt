@@ -4,7 +4,4 @@ pandas
 numpy
 scikit-learn
 pydantic
-matplotlib
-streamlit
-requests
 python-multipart
