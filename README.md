@@ -4,23 +4,19 @@ This project provides a web-based tool for performing **Propensity Score Matchin
 
 ---
 
-## Demo
-
-### DML Tab
-
-![DML Tab Screenshot](./docs/dml.png)
-
-### PSM Tab
-
-![PSM Tab Screenshot](./docs/psm.png)
-
-*Above: The Streamlit frontend for uploading data and running PSM or DML analysis.*
-
----
-
 ## Try it Online
 
 👉 **Check out the live app:** [https://analyze-cause.onrender.com/](https://analyze-cause.onrender.com/)
+
+---
+
+## Demo
+
+| DML Tab | PSM Tab |
+|---------|---------|
+| ![DML Tab Screenshot](./docs/dml.png) | ![PSM Tab Screenshot](./docs/psm.png) |
+
+*Above: The Streamlit frontend for uploading data and running PSM or DML analysis.*
 
 ---
 
