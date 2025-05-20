@@ -59,7 +59,7 @@ def psm(
     matched_pairs = []
 
     for treated_index, treated_row in treated.iterrows():
-      distances, indices = nbrs.kneighbors(np.array([[treated_row["_propensity_score"]]]))
+      distances, indices = nbrs.kneighbors( pd.DataFrame([[treated_row["_propensity_score"]]], columns=["_propensity_score"]) )
       matched_ids = []
       for d, idx in zip(distances[0], indices[0]):
         if use_caliper and d > caliper:
@@ -86,8 +86,28 @@ def psm(
     matched_treated = np.array(matched_treated)
 
     att = (matched_treated - matched_controls).mean()
-    ate = (Y[treated_idx].mean() - Y[control_idx].mean())
     num_matched = len(matched_controls)
+
+    nbrs_atc = NearestNeighbors(n_neighbors=int(n_neighbors), algorithm="ball_tree")
+    nbrs_atc.fit(treated[["_propensity_score"]])
+
+    atc_effects = []
+    for control_index, control_row in control.iterrows():
+        distances, indices = nbrs_atc.kneighbors(pd.DataFrame([[control_row["_propensity_score"]]], columns=["_propensity_score"]))
+        for d, idx in zip(distances[0], indices[0]):
+            if use_caliper and d > caliper:
+                continue
+            treated_idx_in_df = treated.index[idx]
+            matched_outcome = treated.loc[treated_idx_in_df, outcome_col]
+            atc_effects.append(matched_outcome - control_row[outcome_col])
+
+    atc = np.mean(atc_effects) if atc_effects else np.nan
+
+    n_treated = len(treated)
+    n_control = len(control)
+    n_total = n_treated + n_control
+
+    ate = (n_treated / n_total) * att + (n_control / n_total) * atc
 
     prop_hist_data = None
     matched_outcome_hist_data = None

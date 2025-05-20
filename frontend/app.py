@@ -200,7 +200,7 @@ with dml_tab:
                     if results.get("att") is not None:
                         st.write(f"**ATT (Matched units):** {results['att']:.4f}")
                     if results.get("ate") is not None:
-                        st.write(f"**ATE (Raw difference):** {results['ate']:.4f}")
+                        st.write(f"**ATE (Adjusted for confounders):** {results['ate']:.4f}")
                     col5, col6 = st.columns(2)
 
                     # Conclusions
