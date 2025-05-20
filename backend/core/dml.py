@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.model_selection import KFold
 from sklearn.linear_model import LassoCV, LogisticRegression
 from sklearn.ensemble import RandomForestRegressor
-from ..api.schemas import DMLResponse, PlotData
+from backend.api.schemas import DMLResponse, PlotData
 from sklearn.preprocessing import StandardScaler
 
 def dml(
