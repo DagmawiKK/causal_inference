@@ -4,6 +4,7 @@ from sklearn.model_selection import KFold
 from sklearn.linear_model import LassoCV, LogisticRegression
 from sklearn.ensemble import RandomForestRegressor
 from ..api.schemas import DMLResponse
+from sklearn.preprocessing import StandardScaler
 
 def dml(
     data: list,
@@ -16,6 +17,9 @@ def dml(
 ) -> DMLResponse:
     df = pd.DataFrame(data)
     X = pd.get_dummies(df[confounders], drop_first=True)
+    if scale_features:
+        scaler = StandardScaler()
+        X = pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
     treatment = df[treatment_col].values
     outcomes = df[outcome_col].values
     kf = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
