@@ -46,8 +46,10 @@ class DMLRequest(BaseModel):
     n_splits: int = Field(default=5, ge=2)
     random_state: int = 42
     scale_features: bool = True
+    show_outcome_hist: bool = True
 
 class DMLResponse(BaseModel):
     ate: Optional[float] = None
     att: Optional[float] = None
     message: Optional[str] = None
+    outcome_plot: Optional[PlotData] = None
