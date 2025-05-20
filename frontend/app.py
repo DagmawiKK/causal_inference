@@ -2,13 +2,12 @@ import streamlit as st
 import requests
 import pandas as pd
 import matplotlib.pyplot as plt
-import json
 import os
 
 st.set_page_config(page_title="Causal Inference Analysis Tool", layout="centered")
 st.title("Causal Inference Analysis Tool")
 
-FASTAPI_URL = "http://localhost:8000/api"
+FASTAPI_URL = os.environ.get("FASTAPI_URL", "http://localhost:8000/api")
 
 # File upload ui
 st.header("Upload your CSV file")
