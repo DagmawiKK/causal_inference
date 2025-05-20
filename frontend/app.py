@@ -161,6 +161,7 @@ with dml_tab:
             random_state = st.number_input("random_state", value=42, step=1, key="random_state_dml")
 
         scale_features = st.checkbox("Scale features for matching", value=True, key="scale_features_dml")
+        view_outcome_plot = st.checkbox("Show outcome distribution plot", value=False, key="view_outcome_plot_dml")
 
         if st.button("Analyze Data", key="analyze_dml"):
             if not treatment_col or not outcome_col or not confounders:
@@ -173,7 +174,8 @@ with dml_tab:
                     "confounders": confounders,
                     "n_splits": n_splits,
                     "random_state": random_state,
-                    "scale_features": scale_features
+                    "scale_features": scale_features,
+                    "view_outcome_plot": view_outcome_plot
                 }
 
                 try:
@@ -185,6 +187,18 @@ with dml_tab:
                         st.write(f"**ATT (Matched units):** {results['att']:.4f}")
                     if results.get("ate") is not None:
                         st.write(f"**ATE (Raw difference):** {results['ate']:.4f}")
+                    if results.get("outcome_plot"):
+                        plot_data = results["outcome_plot"]
+                        fig, ax = plt.subplots(figsize=(7, 4))
+                        if plot_data.get("treated_values"):
+                            ax.hist(plot_data["treated_values"], bins=20, alpha=0.6, label=plot_data["legend_labels"][0] if plot_data.get("legend_labels") else "Treated", color="tab:blue")
+                        if plot_data.get("control_values"):
+                            ax.hist(plot_data["control_values"], bins=20, alpha=0.6, label=plot_data["legend_labels"][1] if plot_data.get("legend_labels") else "Control", color="tab:orange")
+                        ax.set_xlabel(plot_data.get("xlabel", "Outcome"))
+                        ax.set_ylabel(plot_data.get("ylabel", "Count"))
+                        ax.set_title(plot_data.get("title", "Outcome Distribution by Treatment Group"))
+                        ax.legend()
+                        st.pyplot(fig)
 
                 except Exception as e:
                     st.error(f"An error occurred while communicating with the backend: {e}")
