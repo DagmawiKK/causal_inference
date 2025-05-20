@@ -43,8 +43,12 @@ def dml(
 
     final_model = LassoCV(cv=3, random_state=random_state)
     final_model.fit(treatment_difference.reshape(-1, 1), outcome_difference)
-    att = final_model.coef_[0]
-    ate = outcomes[treatment == 1].mean() - outcomes[treatment == 0].mean()
+    ate = final_model.coef_[0]
+    
+    mask = (treatment == 1)
+    att_final_model = LassoCV(cv=3, random_state=random_state)
+    att_final_model.fit(treatment_difference[mask].reshape(-1, 1), outcome_difference[mask])
+    att = att_final_model.coef_[0]
 
     outcome_plot = PlotData(
         treated_values=outcomes[treatment == 1].tolist(),
