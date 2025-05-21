@@ -59,9 +59,17 @@ def dml(
         legend_labels=["Treated", "Control"]
     )
 
+    linear_regression_plot = {
+        "treatment_residuals": treatment_difference.tolist(),
+        "outcome_residuals": outcome_difference.tolist(),
+        "intercept": float(final_model.intercept_),
+        "coef": float(final_model.coef_[0])
+    }
+
     return DMLResponse(
         att=att,
         ate=ate,
         message="DML analysis complete.",
         outcome_plot=outcome_plot,
+        linear_regression_plot=linear_regression_plot
     )
