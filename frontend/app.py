@@ -3,6 +3,7 @@ import requests
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+import numpy as np
 
 st.set_page_config(page_title="Causal Inference Analysis Tool", layout="centered")
 st.title("Causal Inference Analysis Tool")
@@ -230,6 +231,24 @@ with dml_tab:
                         ax.set_xlabel(plot_data.get("xlabel", "Outcome"))
                         ax.set_ylabel(plot_data.get("ylabel", "Count"))
                         ax.set_title(plot_data.get("title", "Outcome Distribution by Treatment Group"))
+                        ax.legend()
+                        st.pyplot(fig)
+
+                    # DML final model liner regression plot
+                    if results.get("linear_regression_plot"):                        
+                        lasso_data = results["linear_regression_plot"]
+                        x = np.array(lasso_data["treatment_residuals"])
+                        y = np.array(lasso_data["outcome_residuals"])
+                        intercept = lasso_data["intercept"]
+                        coef = lasso_data["coef"]
+                        fig, ax = plt.subplots(figsize=(7, 4))
+                        ax.scatter(x, y, alpha=0.5, label="Residuals")
+                        x_vals = np.linspace(x.min(), x.max(), 100)
+                        y_vals = intercept + coef * x_vals
+                        ax.plot(x_vals, y_vals, color="red", label="LassoCV Fit")
+                        ax.set_xlabel("Treatment Residuals")
+                        ax.set_ylabel("Outcome Residuals")
+                        ax.set_title("LassoCV Fit on Residuals (DML)")
                         ax.legend()
                         st.pyplot(fig)
 
