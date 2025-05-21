@@ -52,3 +52,4 @@ class DMLResponse(BaseModel):
     att: Optional[float] = None
     message: Optional[str] = None
     outcome_plot: Optional[PlotData] = None
+    linear_regression_plot: Optional[dict] = None
